@@ -12,6 +12,15 @@ define solc_build
 	sed -e 's|$${__WORKSPACE__}|'"$(WORKSPACE)"'|g' $(WORKSPACE)/$(1) | solc --allow-paths $(WORKSPACE) --standard-json > $(WORKSPACE)/$(1)
 endef
 
+define rename_file
+	cp build/$(1).abi build/$(2).abi
+	cp build/$(1).bin build/$(2).bin
+endef
+
+define web3j_build
+	web3j solidity generate build/$(1).bin build/$(1).abi -o build/web3j -p network.pluto.alfred
+endef
+
 library:
 	solcjs --allow-paths contracts \
 		contracts/zeppelin-solidity/math/SafeMath.sol \
@@ -33,5 +42,17 @@ pluto: clean
 		contracts/pluto/Pluto.sol \
 		--abi --bin --optimize -o build
 
+	$(call rename_file,contracts_pluto_Pluto_sol_Pluto,Pluto)
+	$(call rename_file,contracts_pluto_PlutoWallet_sol_PlutoWallet,PlutoWallet)
+	$(call rename_file,contracts_pluto_token_PLTToken_sol_PLTToken,PLTToken)
+
+	$(MAKE) web3j
+
+web3j:
+	$(call web3j_build,Pluto)
+	$(call web3j_build,PlutoWallet)
+	$(call web3j_build,PLTToken)
+
 clean:
 	rm -rf $(WORKSPACE)/build
+	rm -rf $(WORKSPACE)/web3j
