@@ -12,6 +12,11 @@ define solc_build
 	sed -e 's|$${__WORKSPACE__}|'"$(WORKSPACE)"'|g' $(WORKSPACE)/$(1) | solc --allow-paths $(WORKSPACE) --standard-json > $(WORKSPACE)/$(1)
 endef
 
+library:
+	solcjs --allow-paths contracts \
+		contracts/zeppelin-solidity/math/SafeMath.sol \
+		--abi --bin --optimize -o build
+
 pluto: clean
 	solcjs --allow-paths contracts \
 		contracts/zeppelin-solidity/ownership/Ownable.sol \
@@ -23,9 +28,10 @@ pluto: clean
 		contracts/zeppelin-solidity/token/StandardToken.sol \
 		contracts/zeppelin-solidity/token/MintableToken.sol \
 		contracts/zeppelin-solidity/token/PausableToken.sol \
+		contracts/pluto/token/PLTToken.sol \
 		contracts/pluto/PlutoWallet.sol \
 		contracts/pluto/Pluto.sol \
-		contracts/pluto/token/PLTToken.sol --abi --bin --optimize -o build
+		--abi --bin --optimize -o build
 
 clean:
 	rm -rf $(WORKSPACE)/build
