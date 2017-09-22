@@ -14,15 +14,15 @@ endef
 
 pluto: clean
 	solcjs --allow-paths contracts \
-		contracts/lib/ownership/Ownable.sol \
-		contracts/lib/math/SafeMath.sol \
-		contracts/lib/lifecycle/Pausable.sol \
-		contracts/lib/token/ERC20.sol \
-		contracts/lib/token/ERC20Basic.sol \
-		contracts/lib/token/BasicToken.sol \
-		contracts/lib/token/StandardToken.sol \
-		contracts/lib/token/MintableToken.sol \
-		contracts/lib/token/PausableToken.sol \
+		contracts/zeppelin-solidity/ownership/Ownable.sol \
+		contracts/zeppelin-solidity/math/SafeMath.sol \
+		contracts/zeppelin-solidity/lifecycle/Pausable.sol \
+		contracts/zeppelin-solidity/token/ERC20.sol \
+		contracts/zeppelin-solidity/token/ERC20Basic.sol \
+		contracts/zeppelin-solidity/token/BasicToken.sol \
+		contracts/zeppelin-solidity/token/StandardToken.sol \
+		contracts/zeppelin-solidity/token/MintableToken.sol \
+		contracts/zeppelin-solidity/token/PausableToken.sol \
 		contracts/pluto/PlutoWallet.sol \
 		contracts/pluto/Pluto.sol \
 		contracts/pluto/token/PLTToken.sol --abi --bin --optimize -o build
