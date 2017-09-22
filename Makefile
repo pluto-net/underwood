@@ -18,7 +18,7 @@ define rename_file
 endef
 
 define web3j_build
-	web3j solidity generate build/$(1).bin build/$(1).abi -o build/web3j -p network.pluto.alfred
+	web3j solidity generate build/$(1).bin build/$(1).abi -o build/web3j -p network.pluto.alfred.contracts
 endef
 
 library:
