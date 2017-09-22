@@ -1,7 +1,6 @@
 pragma solidity ^0.4.15;
 
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
-
+import '../lib/ownership/Ownable.sol';
 import './PlutoWallet.sol';
 
 contract Pluto is Ownable {

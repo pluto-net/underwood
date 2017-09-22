@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import '../lib/ownership/Ownable.sol';
 
 contract PlutoWallet is Ownable {
     uint public mMemberId;

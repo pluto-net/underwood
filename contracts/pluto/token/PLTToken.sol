@@ -1,8 +1,8 @@
 pragma solidity ^0.4.15;
 
-import 'zeppelin-solidity/contracts/token/MintableToken.sol';
-import 'zeppelin-solidity/contracts/token/PausableToken.sol';
-import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import '../../lib/token/MintableToken.sol';
+import '../../lib/token/PausableToken.sol';
+import '../../lib/math/SafeMath.sol';
 
 contract PLTToken is MintableToken, PausableToken {
     using SafeMath for uint256;
