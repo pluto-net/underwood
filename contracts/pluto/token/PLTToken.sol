@@ -4,6 +4,7 @@ import '../../zeppelin-solidity/token/MintableToken.sol';
 import '../../zeppelin-solidity/token/PausableToken.sol';
 import '../../zeppelin-solidity/math/SafeMath.sol';
 
+
 contract PLTToken is MintableToken, PausableToken {
     using SafeMath for uint256;
 

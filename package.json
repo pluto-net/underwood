@@ -1,0 +1,23 @@
+{
+  "name": "underwood",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "web3": "^1.0.0-beta.21"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pluto-net/underwood.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pluto-net/underwood/issues"
+  },
+  "homepage": "https://github.com/pluto-net/underwood#readme"
+}

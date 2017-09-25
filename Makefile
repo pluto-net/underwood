@@ -7,11 +7,6 @@ default: pluto
 all: pluto
 shirley: pluto
 
-define solc_build
-	if [ ! -d "$(WORKSPACE)/build" ]; then mkdir -p $(WORKSPACE)/build; fi
-	sed -e 's|$${__WORKSPACE__}|'"$(WORKSPACE)"'|g' $(WORKSPACE)/$(1) | solc --allow-paths $(WORKSPACE) --standard-json > $(WORKSPACE)/$(1)
-endef
-
 define rename_file
 	cp build/$(1).abi build/$(2).abi
 	cp build/$(1).bin build/$(2).bin
@@ -52,6 +47,9 @@ web3j:
 	$(call web3j_build,Pluto)
 	$(call web3j_build,PlutoWallet)
 	$(call web3j_build,PLTToken)
+
+deploy:
+	node scripts/deploy.js
 
 clean:
 	rm -rf $(WORKSPACE)/build
