@@ -11,8 +11,9 @@ contract Pluto is Ownable {
 
     function createWallet(uint _memberId)
         onlyOwner
+        returns (address walletAddr)
     {
-        address walletAddr = address(new PlutoWallet(_memberId));
+        walletAddr = address(new PlutoWallet(_memberId));
         mWallets[_memberId] = walletAddr;
 
         WalletCreated(_memberId, walletAddr);
