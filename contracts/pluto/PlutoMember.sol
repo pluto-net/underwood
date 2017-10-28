@@ -9,7 +9,7 @@ contract PlutoMember is Ownable {
       uint32 => 4 bytes
       string => 4 bytes + (string.length) bytes
      */
-    struct MemberSchema {
+    struct Member {
         uint32 memberId;
         string email;
         string name;
@@ -17,7 +17,7 @@ contract PlutoMember is Ownable {
         string major;
     }
 
-    function storeMember(
+    function storeMember (
         uint32 _memberId, 
         string _email,
         string _name, 
@@ -31,14 +31,27 @@ contract PlutoMember is Ownable {
         uint position = 0;
         bytes memory memberData = new bytes(bytesLen);
 
-        position = storeUint32(_memberId, memberData, position);
-        position = storeString(_email, memberData, position);
-        position = storeString(_name, memberData, position);
-        position = storeString(_institution, memberData, position);
-        position = storeString(_major, memberData, position);
+        position = packUint32(_memberId, memberData, position);
+        position = packString(_email, memberData, position);
+        position = packString(_name, memberData, position);
+        position = packString(_institution, memberData, position);
+        position = packString(_major, memberData, position);
     }
 
-    function storeUint32(uint32 _value, bytes memory _target, uint _position)
+    function reassembleMember (
+        bytes memberData
+    )
+        public
+        onlyOwner
+        returns (Member member)
+    {
+        uint position = 0;
+        uint32 memberId = 0;
+        (memberId, position) = unpackUint32(memberData, position);
+        // member = Member();
+    }
+
+    function packUint32(uint32 _value, bytes memory _target, uint _position)
         internal
         returns (uint oPosition)
     {
@@ -48,7 +61,17 @@ contract PlutoMember is Ownable {
         }
     }
 
-    function storeString(string _value, bytes memory _target, uint _position)
+    function unpackUint32(bytes _data, uint _position)
+        internal
+        returns (uint32 oValue, uint oPosition)
+    {
+        assembly {
+            oValue := mload(add(add(_data, 0x20), _position))
+            oPosition := add(_position, 0x20)
+        }
+    }
+
+    function packString(string _value, bytes memory _target, uint _position)
         internal
         returns (uint oPosition)
     {
@@ -73,6 +96,8 @@ contract PlutoMember is Ownable {
             
             let mask := exp(0x10, div(sub(0x20, leftbits), 0x04))
             mstore(add(data, p), or(and(add(data, p), mask), and(add(_value, p), not(mask))))
+
+            oPosition := add(_position, end)
         }
     }
 }
