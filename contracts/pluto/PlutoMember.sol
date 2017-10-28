@@ -27,15 +27,15 @@ contract PlutoMember is Ownable {
         public
         onlyOwner
     {
-        uint bytesLen = 4 + 4 + bytes(_email).length + 4 + bytes(_name).length + 4 + bytes(_institution).length + 4 + bytes(_majo4).length;
+        uint bytesLen = 4 + 4 + bytes(_email).length + 4 + bytes(_name).length + 4 + bytes(_institution).length + 4 + bytes(_major).length;
         uint position = 0;
-        bytes memory memberInfo = new bytes(bytesLen);
+        bytes memory memberData = new bytes(bytesLen);
 
-        position = storeUint32(_memberId, position);
-        position = storeSting(_email, position);
-        position = storeSting(_name, position);
-        position = storeSting(_institution, position);
-        position = storeSting(_major, position);
+        position = storeUint32(_memberId, memberData, position);
+        position = storeString(_email, memberData, position);
+        position = storeString(_name, memberData, position);
+        position = storeString(_institution, memberData, position);
+        position = storeString(_major, memberData, position);
     }
 
     function storeUint32(uint32 _value, bytes memory _target, uint _position)
