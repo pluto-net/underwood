@@ -77,12 +77,11 @@ contract PlutoMember is Ownable {
     {
         assembly {
             let strlen := mload(_value)
-            let p := 0x00
 
-            let data := add(add(_target, 0x20), _position)
-            mstore(add(data, p), strlen)
-            p := add(p, 0x20)
+            let dest := add(add(_target, 0x20), _position)
+            mstore(dest, strlen)
 
+            let p := 0x20
             let end := add(p, strlen)
             let leftbits := sub(end, p)
             for
@@ -90,14 +89,44 @@ contract PlutoMember is Ownable {
                 or(gt(leftbits, 0x20), eq(leftbits, 0x20))
                 {p := add(p, 0x20)}
             {
-                mstore(add(data, p), mload(add(_value, p)))
+                mstore(add(dest, p), mload(add(_value, p)))
                 leftbits := sub(end, p)
             }
             
             let mask := exp(0x10, div(sub(0x20, leftbits), 0x04))
-            mstore(add(data, p), or(and(add(data, p), mask), and(add(_value, p), not(mask))))
+            mstore(add(dest, p), or(and(add(dest, p), mask), and(add(_value, p), not(mask))))
 
             oPosition := add(_position, end)
+        }
+    }
+
+    function unpackString(bytes _data, uint _position)
+        internal
+        returns (string oValue, uint oPosition)
+    {
+        assembly {
+            let p := _position
+            let strlen := mload(add(_data, p))
+            oValue := mload(0x40)
+            mstore(0x40, add(oValue, and(add(add(strlen, 0x20), 0x1f), not(0x1f))))
+            mstore(oValue, strlen)
+
+            p := add(p, 0x20)
+            let end := add(p, strlen)
+            let leftbits := sub(end, p)
+            let dest := add(oValue, p)
+            for
+                {}
+                or(gt(leftbits, 0x20), eq(leftbits, 0x20))
+                {p := add(p, 0x20)}
+            {
+                mstore(dest, mload(add(_data, p)))
+                leftbits := sub(end, p)
+                dest := add(oValue, p)
+            }
+
+            let mask := exp(0x10, div(sub(0x20, leftbits), 0x04))
+            mstore(dest, or(and(dest, mask), and(add(_data, p), not(mask))))
         }
     }
 }
