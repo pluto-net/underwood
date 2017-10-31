@@ -17,6 +17,37 @@ contract PlutoMember is Ownable {
         string major;
     }
 
+    event PackUint32Result(uint position, bytes result, uint32 source);
+    event UnpackUint32Result(uint position, uint32 result, bytes source);
+    event PackStringResult(uint position, bytes result, string source);
+    event UnpackStringResult(uint position, string result, bytes source);
+    
+    function test()
+        public
+    {
+        uint position = 0;
+        
+        uint32 testUint32 = 4;
+        bytes memory destUint32 = new bytes(4);
+        position = packUint32(testUint32, destUint32, position);
+        PackUint32Result(position, destUint32, testUint32);
+        
+        position = 0;
+        (testUint32, position) = unpackUint32(destUint32, position);
+        UnpackUint32Result(position, testUint32, destUint32);
+        
+        position = 0;
+        string memory testStr = "testa";
+        uint destLen = 32 + bytes(testStr).length;
+        bytes memory destStr = new bytes(destLen);
+        position = packString(testStr, destStr, position);
+        PackStringResult(position, destStr, testStr);
+        
+        position = 0;
+        (testStr, position) = unpackString(destStr, position);
+        UnpackStringResult(position, testStr, destStr);
+    }
+
     function storeMember (
         uint32 _memberId, 
         string _email,
@@ -51,13 +82,14 @@ contract PlutoMember is Ownable {
         // member = Member();
     }
 
-    function packUint32(uint32 _value, bytes memory _target, uint _position)
+    function packUint32(uint32 _value, bytes _target, uint _position)
         internal
         returns (uint oPosition)
     {
         assembly {
-            mstore(add(add(_target, 0x20), _position), _value)
-            oPosition := add(_position, 0x20)
+
+            mstore(add(add(_target, 0x20), _position), mul(_value, exp(2, 224)))
+            oPosition := add(_position, 0x04)
         }
     }
 
@@ -66,37 +98,36 @@ contract PlutoMember is Ownable {
         returns (uint32 oValue, uint oPosition)
     {
         assembly {
-            oValue := mload(add(add(_data, 0x20), _position))
-            oPosition := add(_position, 0x20)
+            oValue := div(mload(add(add(_data, 0x20), _position)), exp(2, 224))
+            oPosition := add(_position, 0x04)
         }
     }
 
-    function packString(string _value, bytes memory _target, uint _position)
+    function packString(string _value, bytes _target, uint _position)
         internal
         returns (uint oPosition)
     {
         assembly {
             let strlen := mload(_value)
-
             let dest := add(add(_target, 0x20), _position)
             mstore(dest, strlen)
 
             let p := 0x20
-            let end := add(p, strlen)
-            let leftbits := sub(end, p)
+            oPosition := add(_position, 0x20)
+            let bytesleft := strlen
             for
                 {}
-                or(gt(leftbits, 0x20), eq(leftbits, 0x20))
+                or(gt(bytesleft, 0x20), eq(bytesleft, 0x20))
                 {p := add(p, 0x20)}
             {
                 mstore(add(dest, p), mload(add(_value, p)))
-                leftbits := sub(end, p)
+                bytesleft := sub(bytesleft, 0x20)
+                oPosition := add(oPosition, 0x20)
             }
             
-            let mask := exp(0x10, div(sub(0x20, leftbits), 0x04))
-            mstore(add(dest, p), or(and(add(dest, p), mask), and(add(_value, p), not(mask))))
-
-            oPosition := add(_position, end)
+            let mask := sub(exp(0x100, sub(0x20, bytesleft)), 1)
+            mstore(add(dest, p), or(and(mload(add(dest, p)), mask), and(mload(add(_value, p)), not(mask))))
+            oPosition := add(oPosition, 0x20)
         }
     }
 
@@ -105,28 +136,28 @@ contract PlutoMember is Ownable {
         returns (string oValue, uint oPosition)
     {
         assembly {
-            let p := _position
-            let strlen := mload(add(_data, p))
+            let stringData := add(add(_data, 0x20), _position)
+            let strlen := mload(stringData)
             oValue := mload(0x40)
             mstore(0x40, add(oValue, and(add(add(strlen, 0x20), 0x1f), not(0x1f))))
             mstore(oValue, strlen)
 
-            p := add(p, 0x20)
-            let end := add(p, strlen)
-            let leftbits := sub(end, p)
-            let dest := add(oValue, p)
+            let p := 0x20
+            oPosition := add(_position, 0x20)
+            let bytesleft := strlen
             for
                 {}
-                or(gt(leftbits, 0x20), eq(leftbits, 0x20))
+                or(gt(bytesleft, 0x20), eq(bytesleft, 0x20))
                 {p := add(p, 0x20)}
             {
-                mstore(dest, mload(add(_data, p)))
-                leftbits := sub(end, p)
-                dest := add(oValue, p)
+                mstore(add(oValue, p), mload(add(stringData, p)))
+                bytesleft := sub(bytesleft, 0x20)
+                oPosition := add(oPosition, 0x20)
             }
 
-            let mask := exp(0x10, div(sub(0x20, leftbits), 0x04))
-            mstore(dest, or(and(dest, mask), and(add(_data, p), not(mask))))
+            let mask := sub(exp(0x100, sub(0x20, bytesleft)), 1)
+            mstore(add(oValue, p), or(and(mload(add(oValue, p)), mask), and(mload(add(stringData, p)), not(mask))))
+            oPosition := add(oPosition, bytesleft)
         }
     }
 }
