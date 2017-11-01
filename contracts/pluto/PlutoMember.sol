@@ -1,5 +1,7 @@
 pragma solidity ^0.4.17;
 
+import './PlutoDBUtils.sol';
+
 
 contract PlutoMember {
     /**
@@ -28,22 +30,22 @@ contract PlutoMember {
         
         uint32 testUint32 = 4;
         bytes memory destUint32 = new bytes(4);
-        position = packUint32(testUint32, destUint32, position);
+        position = PlutoDBUtils.packUint32(testUint32, destUint32, position);
         PackUint32Result(position, destUint32, testUint32);
         
         position = 0;
-        position = unpackUint32(destUint32, testUint32, position);
+        position = PlutoDBUtils.unpackUint32(destUint32, testUint32, position);
         UnpackUint32Result(position, testUint32, destUint32);
         
         position = 0;
         string memory testStr = "testa";
         uint destLen = 32 + bytes(testStr).length;
         bytes memory destStr = new bytes(destLen);
-        position = packString(testStr, destStr, position);
+        position = PlutoDBUtils.packString(testStr, destStr, position);
         PackStringResult(position, destStr, testStr);
         
         position = 0;
-        position = unpackString(destStr, testStr, position);
+        position = PlutoDBUtils.unpackString(destStr, testStr, position);
         UnpackStringResult(position, testStr, destStr);
     }
 
@@ -66,18 +68,18 @@ contract PlutoMember {
         }
 
         uint position = 0;
-        position = packString(testStr1, dest, position);
-        position = packUint32(testUint32, dest, position);
-        position = packString(testStr2, dest, position);
+        position = PlutoDBUtils.packString(testStr1, dest, position);
+        position = PlutoDBUtils.packUint32(testUint32, dest, position);
+        position = PlutoDBUtils.packString(testStr2, dest, position);
 
         position = 0;
-        position = unpackString(dest, testStr1, position);
+        position = PlutoDBUtils.unpackString(dest, testStr1, position);
         UnpackStringResult(position, testStr1, dest);
 
-        position = unpackUint32(dest, testUint32, position);
+        position = PlutoDBUtils.unpackUint32(dest, testUint32, position);
         UnpackUint32Result(position, testUint32, dest);
 
-        position = unpackString(dest, testStr2, position);
+        position = PlutoDBUtils.unpackString(dest, testStr2, position);
         UnpackStringResult(position, testStr2, dest);
     }
 
@@ -94,90 +96,10 @@ contract PlutoMember {
         uint position = 0;
         bytes memory memberData = new bytes(bytesLen);
 
-        position = packUint32(_memberId, memberData, position);
-        position = packString(_email, memberData, position);
-        position = packString(_name, memberData, position);
-        position = packString(_institution, memberData, position);
-        position = packString(_major, memberData, position);
-    }
-
-    function packUint32(uint32 _value, bytes _target, uint _position)
-        internal
-        returns (uint oPosition)
-    {
-        assembly {
-
-            mstore(add(add(_target, 0x20), _position), mul(_value, exp(2, 224)))
-            oPosition := add(_position, 0x04)
-        }
-    }
-
-    function unpackUint32(bytes _data, uint32 _target, uint _position)
-        internal
-        returns (uint oPosition)
-    {
-        assembly {
-            _target := div(mload(add(add(_data, 0x20), _position)), exp(2, 224))
-            oPosition := add(_position, 0x04)
-        }
-    }
-
-    function packString(string _value, bytes _target, uint _position)
-        internal
-        returns (uint oPosition)
-    {
-        assembly {
-            let strlen := mload(_value)
-            let dest := add(add(_target, 0x20), _position)
-            mstore(dest, strlen)
-
-            let p := 0x20
-            let bytesleft := strlen
-            for
-                {}
-                or(gt(bytesleft, 0x20), eq(bytesleft, 0x20))
-                {p := add(p, 0x20)}
-            {
-                mstore(add(dest, p), mload(add(_value, p)))
-                bytesleft := sub(bytesleft, 0x20)
-            }
-            
-            let mask := sub(exp(0x100, sub(0x20, bytesleft)), 1)
-            mstore(add(dest, p), or(and(mload(add(dest, p)), mask), and(mload(add(_value, p)), not(mask))))
-            p := add(p, bytesleft)
-            oPosition := add(_position, p)
-        }
-    }
-
-    function unpackString(bytes _data, string _target, uint _position)
-        internal
-        returns (uint oPosition)
-    {
-        uint strlen;
-        uint stringData;
-        assembly {
-            stringData := add(add(_data, 0x20), _position)
-            strlen := mload(stringData)
-        }
-        _target = new string(strlen);
-        assembly {
-            mstore(_target, strlen)
-
-            let p := 0x20
-            let bytesleft := strlen
-            for
-                {}
-                or(gt(bytesleft, 0x20), eq(bytesleft, 0x20))
-                {p := add(p, 0x20)}
-            {
-                mstore(add(_target, p), mload(add(stringData, p)))
-                bytesleft := sub(bytesleft, 0x20)
-            }
-
-            let mask := sub(exp(0x100, sub(0x20, bytesleft)), 1)
-            mstore(add(_target, p), or(and(mload(add(_target, p)), mask), and(mload(add(stringData, p)), not(mask))))
-            p := add(p, bytesleft)
-            oPosition := add(_position, p)
-        }
+        position = PlutoDBUtils.packUint32(_memberId, memberData, position);
+        position = PlutoDBUtils.packString(_email, memberData, position);
+        position = PlutoDBUtils.packString(_name, memberData, position);
+        position = PlutoDBUtils.packString(_institution, memberData, position);
+        position = PlutoDBUtils.packString(_major, memberData, position);
     }
 }
