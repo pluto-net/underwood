@@ -5,11 +5,11 @@ import './PlutoWallet.sol';
 
 
 contract Pluto is Ownable {
-    mapping (uint => address) public mWallets;
+    mapping (uint64 => address) public mWallets;
 
-    event WalletCreated(uint indexed memberId, address indexed walletAddr);
+    event WalletCreated(uint64 indexed memberId, address indexed walletAddr);
 
-    function createWallet(uint _memberId)
+    function createWallet(uint64 _memberId)
         onlyOwner
         returns (address walletAddr)
     {

@@ -4,9 +4,9 @@ import '../zeppelin-solidity/ownership/Ownable.sol';
 
 
 contract PlutoWallet is Ownable {
-    uint public mMemberId;
+    uint64 public mMemberId;
 
-    function PlutoWallet(uint _memberId) {
+    function PlutoWallet(uint64 _memberId) {
         mMemberId = _memberId;
     }
 }

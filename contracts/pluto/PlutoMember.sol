@@ -6,22 +6,23 @@ contract PlutoMember {
       Member data is transformed into byte array(type of bytes).
       [How to store data into bytes]
       uint32 => 4 bytes
-      string => 4 bytes + (string.length) bytes
+      uint64 => 8 bytes
+      string => 32 bytes + (string.length) bytes
      */
 
     struct Member {
-        uint32 memberId;
+        uint64 memberId;
         string email;
         string name;
         string institution;
         string major;
     }
 
-    event MemberStored(uint32 indexed memberId);
+    event MemberStored(uint64 indexed memberId);
     event MemberGotten(Member indexed member);
 
-    uint32 mNumMembers = 0;
-    mapping (uint32 => bytes) mMemberStorage;
+    uint64 mNumMembers = 0;
+    mapping (uint64 => bytes) mMemberStorage;
 
     function storeMember (
         string _email,
@@ -31,7 +32,8 @@ contract PlutoMember {
     )
         public
     {
-        uint32 memberId = mNumMembers++;
+        mNumMembers = mNumMembers + 1;
+        uint64 memberId = mNumMembers++;
 
         Member memory member = Member(memberId, _email, _name, _institution, _major);
         bytes memory memberData = packMember(member);
@@ -42,7 +44,7 @@ contract PlutoMember {
         internal
         returns (bytes oMemberData)
     {
-        uint bytesLen = 4 + 
+        uint bytesLen = 8 + 
                         32 + bytes(member.email).length + 
                         32 + bytes(member.name).length + 
                         32 + bytes(member.institution).length +
@@ -50,14 +52,14 @@ contract PlutoMember {
         uint position = 0;
         oMemberData = new bytes(bytesLen);
 
-        position = packUint32(member.memberId, oMemberData, position);
+        position = packUint64(member.memberId, oMemberData, position);
         position = packString(member.email, oMemberData, position);
         position = packString(member.name, oMemberData, position);
         position = packString(member.institution, oMemberData, position);
         position = packString(member.major, oMemberData, position);
     }
 
-    function getMemberInfo (uint32 _memberId)
+    function getMemberInfo (uint64 _memberId)
         public
         returns (Member oMember)
     {
@@ -71,8 +73,8 @@ contract PlutoMember {
         returns (Member oMember)
     {
         uint position = 0;
-        uint32 memberId;
-        position = unpackUint32(_memberData, memberId, position);
+        uint64 memberId;
+        position = unpackUint64(_memberData, memberId, position);
         
         string email;
         position = unpackString(_memberData, email, position);
@@ -89,13 +91,11 @@ contract PlutoMember {
         oMember = Member(memberId, email, name, institution, major);
     }
 
-
     function packUint32(uint32 _value, bytes _target, uint _position)
         internal
         returns (uint oPosition)
     {
         assembly {
-
             mstore(add(add(_target, 0x20), _position), mul(_value, exp(2, 224)))
             oPosition := add(_position, 0x04)
         }
@@ -108,6 +108,26 @@ contract PlutoMember {
         assembly {
             _target := div(mload(add(add(_data, 0x20), _position)), exp(2, 224))
             oPosition := add(_position, 0x04)
+        }
+    }
+
+    function packUint64(uint64 _value, bytes _target, uint _position)
+        internal
+        returns(uint oPosition)
+    {
+        assembly {
+            mstore(add(add(_target, 0x20), _position), mul(_value, exp(2, 192)))
+            oPosition := add(_position, 0x08)
+        }
+    }
+
+    function unpackUint64(bytes _data, uint64 _target, uint _position)
+        internal
+        returns (uint oPosition)
+    {
+        assembly {
+            _target := div(mload(add(add(_data, 0x20), _position)), exp(2, 192))
+            oPosition := add(_position, 0x08)
         }
     }
 
