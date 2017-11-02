@@ -43,10 +43,10 @@ contract PlutoMember {
         returns (bytes oMemberData)
     {
         uint bytesLen = 4 + 
-                        4 + bytes(member.email).length + 
-                        4 + bytes(member.name).length + 
-                        4 + bytes(member.institution).length +
-                        4 + bytes(member.major).length;
+                        32 + bytes(member.email).length + 
+                        32 + bytes(member.name).length + 
+                        32 + bytes(member.institution).length +
+                        32 + bytes(member.major).length;
         uint position = 0;
         oMemberData = new bytes(bytesLen);
 
