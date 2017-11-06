@@ -6,6 +6,7 @@ import "../zeppelin-solidity/math/SafeMath.sol";
 contract PlutoDB {
     mapping(bytes32 => uint32) mUint32Storage;
     mapping(bytes32 => uint64) mUint64Storage;
+    mapping(bytes32 => uint) mUintStorage;
     mapping(bytes32 => string) mStringStorage;
 
     function getUint32(bytes32 key)
@@ -35,7 +36,22 @@ contract PlutoDB {
     }
 
     function deleteUint64(bytes32 key) {
-        delete mUint32Storage[key];
+        delete mUint64Storage[key];
+    }
+
+    function getUint(bytes32 key)
+        constant
+        returns (uint)
+    {
+        return mUintStorage[key];
+    }
+
+    function setUint(bytes32 key, uint value) {
+        mUintStorage[key] = value;
+    }
+
+    function deleteUint(bytes32 key) {
+        delete mUintStorage[key];
     }
 
     function getString(bytes32 key)
