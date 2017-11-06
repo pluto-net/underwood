@@ -1,5 +1,6 @@
 WORKSPACE=$(shell pwd)
 CONTRACT_DIR=$(WORKSPACE)/contracts
+SOURCES=$(shell find -L ./contracts -name *.sol)
 
 .PHONY: default all shirley
 
@@ -23,18 +24,7 @@ library:
 
 pluto: clean
 	solcjs --allow-paths contracts \
-		contracts/zeppelin-solidity/ownership/Ownable.sol \
-		contracts/zeppelin-solidity/math/SafeMath.sol \
-		contracts/zeppelin-solidity/lifecycle/Pausable.sol \
-		contracts/zeppelin-solidity/token/ERC20.sol \
-		contracts/zeppelin-solidity/token/ERC20Basic.sol \
-		contracts/zeppelin-solidity/token/BasicToken.sol \
-		contracts/zeppelin-solidity/token/StandardToken.sol \
-		contracts/zeppelin-solidity/token/MintableToken.sol \
-		contracts/zeppelin-solidity/token/PausableToken.sol \
-		contracts/pluto/token/PLTToken.sol \
-		contracts/pluto/PlutoWallet.sol \
-		contracts/pluto/Pluto.sol \
+		$(SOURCES) \
 		--abi --bin --optimize -o build
 
 	$(call rename_file,contracts_pluto_Pluto_sol_Pluto,Pluto)
