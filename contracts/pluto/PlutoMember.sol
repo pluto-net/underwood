@@ -26,7 +26,7 @@ contract PlutoMember {
     uint mNumMembers = 0;
     mapping (uint => bytes) mMemberStorage;
 
-    function storeMember (
+    function addMember (
         string _email,
         string _name, 
         string _institution,
@@ -35,11 +35,11 @@ contract PlutoMember {
     )
         public
     {
-        mNumMembers = mNumMembers + 1;
         uint memberId = mNumMembers;
+        mNumMembers = mNumMembers + 1;
 
         Member memory member = Member(memberId, _email, _name, _institution, _major, _dbMemberId);
-        bytes memory memberData = packMember(member);
+        bytes memory memberData = packMemberData(member);
         mMemberStorage[memberId] = memberData;
     }
 
@@ -48,12 +48,25 @@ contract PlutoMember {
         returns (Member oMember)
     {
         bytes memory memberData = mMemberStorage[_memberId];
-        oMember = unpackMember(memberData);
+        oMember = unpackMemberData(memberData);
         MemberGotten(oMember);
     }
 
-    function packMember(Member member)
-        internal
+    function findMemberIdByDBMemberId(uint64 _dbMemberId)
+        public
+        returns (uint oMemberId)
+    {
+        for (uint i = 0; i < mNumMembers; i++) {
+            Member memory member = getMemberInfo(i);
+            if (member.dbMemberId == _dbMemberId) {
+                oMemberId = member.memberId;
+                break;
+            }
+        }
+    }
+
+    function packMemberData(Member member)
+        public
         returns (bytes oMemberData)
     {
         uint bytesLen = 32 + 
@@ -73,8 +86,8 @@ contract PlutoMember {
         position = packUint64(member.dbMemberId, oMemberData, position);
     }
 
-    function unpackMember(bytes _memberData)
-        internal
+    function unpackMemberData(bytes _memberData)
+        public
         returns (Member oMember)
     {
         uint position = 0;
