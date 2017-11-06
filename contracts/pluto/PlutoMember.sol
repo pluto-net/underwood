@@ -33,7 +33,7 @@ contract PlutoMember {
         public
     {
         mNumMembers = mNumMembers + 1;
-        uint64 memberId = mNumMembers++;
+        uint64 memberId = mNumMembers;
 
         Member memory member = Member(memberId, _email, _name, _institution, _major);
         bytes memory memberData = packMember(member);
